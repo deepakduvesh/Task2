@@ -1,0 +1,80 @@
+#!/bin/bash
+
+VERSION="v0.1.0"
+
+show_help() {
+    echo "Usage: sysopctl [command] [options]"
+    echo
+    echo "Commands:"
+    echo "  --help             Show this help message"
+    echo "  --version          Show the version of sysopctl"
+    echo "  service list       List all active services"
+    echo "  system load        Show current system load"
+    echo "  service start      Start a specified service"
+    echo "  service stop       Stop a specified service"
+    echo "  disk usage         Show disk usage statistics"
+    echo "  process monitor    Monitor system processes"
+    echo "  logs analyze       Analyze system logs"
+    echo "  backup <path>      Backup files from specified path"
+}
+
+if [[ $1 == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
+if [[ $1 == "--version" ]]; then
+    echo "sysopctl $VERSION"
+    exit 0
+fi
+
+if [[ $1 == "service" && $2 == "list" ]]; then
+    systemctl list-units --type=service
+    exit 0
+fi
+
+if [[ $1 == "system" && $2 == "load" ]]; then
+    uptime
+    exit 0
+fi
+
+
+if [[ $1 == "service" && $2 == "start" && -n $3 ]]; then
+    systemctl start "$3"
+    echo "Service $3 started."
+    exit 0
+fi
+
+
+if [[ $1 == "service" && $2 == "stop" && -n $3 ]]; then
+    systemctl stop "$3"
+    echo "Service $3 stopped."
+    exit 0
+fi
+
+
+if [[ $1 == "disk" && $2 == "usage" ]]; then
+    df -h
+    exit 0
+fi
+
+
+if [[ $1 == "process" && $2 == "monitor" ]]; then
+    top
+    exit 0
+fi
+
+
+if [[ $1 == "logs" && $2 == "analyze" ]]; then
+    journalctl -p 3 -xb | tail -n 20
+    exit 0
+fi
+
+
+if [[ $1 == "backup" && -n $2 ]]; then
+    rsync -av --progress "$2" /backup/
+    echo "Backup of $2 completed."
+    exit 0
+fi
+
+
